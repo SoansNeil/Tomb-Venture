@@ -1,21 +1,19 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
-using UnityEditor.Experimental.GraphView;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : NetworkBehaviour
 {
     public float moveSpeed = 5f;
     public float jumpForce = 10f;
-    public float dashForce = 5f;
+    public float dashDistance = 5f;
+    public float dashSpeed = 40f;
     public float slamForce = 10f;
-    public float dashDuration = 0.2f;
     public float dashCooldown = 1f;
+    public LayerMask wallMask;
     private Rigidbody2D rb;
-    private int jumpRemain,dashRemain;
+    private int jumpRemain;
     private int maxJump = 2;
-    private int maxDash = 1;
     private bool isGrounded,isSlamming,isDashing = false;
     private bool facingRight = true;
     private float dashTimer;
@@ -25,12 +23,15 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         jumpRemain = maxJump;
-        dashRemain = maxDash;
+        if (!IsOwner)
+            rb.isKinematic = true;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (!IsOwner) return;
+
         float moveInput = Input.GetAxisRaw("Horizontal");
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
         if (rb.velocity.x > 0.1f) facingRight = true;
@@ -38,6 +39,7 @@ public class PlayerMovement : MonoBehaviour
         if(Input.GetButtonDown("Jump") && jumpRemain > 0)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            AudioManager.Instance.PlaySoundEffect(AudioManager.Instance.jumpSound);
             jumpRemain--;
         }
         if (dashTimer > 0) dashTimer -= Time.deltaTime;
@@ -55,18 +57,11 @@ public class PlayerMovement : MonoBehaviour
         isDashing = true;
         dashTimer = dashCooldown;
 
-        float originalGravity = rb.gravityScale;
-        rb.gravityScale = 0f;
         float direction = facingRight ? 1f : -1f;
-        rb.velocity = new Vector2(dashForce * direction, 0f);
+        Vector2 target = (Vector2)transform.position + Vector2.right * direction * dashDistance;
+        rb.MovePosition(target);
 
-        //Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMask.NameToLayer("Enemy"), true);
-
-        yield return new WaitForSeconds(dashDuration);
-        rb.gravityScale = originalGravity;
-        rb.velocity = new Vector2(0f, rb.velocity.y);
-        //Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMask.NameToLayer("Enemy"), false);
-
+        yield return null;
         isDashing = false;
     }
     void OnCollisionEnter2D(Collision2D collision)
@@ -74,7 +69,6 @@ public class PlayerMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             jumpRemain = maxJump;
-            dashRemain = maxDash;
             isGrounded = true;
             isSlamming = false;
         } 

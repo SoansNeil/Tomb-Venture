@@ -43,11 +43,6 @@ public class AudioManager : MonoBehaviour
         ChangeMusic(gameOverMusic);
     }
     }
-
-    void Start()
-    {
-        PlayMusic(menuMusic);
-    }
     
     public void PlayMusic(AudioClip clip)
     {

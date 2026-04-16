@@ -6,8 +6,13 @@ using UnityEngine.SceneManagement;
 public class MenuManager : MonoBehaviour
 {
     // Start is called before the first frame update
-        public void StartGame()
+        public void StartHost()
     {
-        SceneManager.LoadScene("Room1");
+        NetworkManagerSetup.Instance.StartHost();
+    }
+
+    public void StartClient()
+    {
+        NetworkManagerSetup.Instance.StartClient();
     }
 }
