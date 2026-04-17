@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -15,15 +16,10 @@ public class PlayerMovement : NetworkBehaviour
     private int jumpRemain;
     private int maxJump = 2;
     public float wallSlideSpeed = 1f;
-    public float attackRange = 1f;
-    public float attackCooldown = 0.5f;
-    public int attackDamage = 10;
-    public LayerMask enemyMask;
     private bool isGrounded, isSlamming, isDashing, isWallSliding = false;
     private bool isTouchingWall = false;
     private bool facingRight = true;
     private float dashTimer;
-    private float attackTimer;
 
     
     void Start()
@@ -59,35 +55,15 @@ public class PlayerMovement : NetworkBehaviour
         }
 
         if (dashTimer > 0) dashTimer -= Time.deltaTime;
-        if (attackTimer > 0) attackTimer -= Time.deltaTime;
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && dashTimer <= 0 && !isDashing)
             StartCoroutine(Dash());
-        if (Input.GetKeyDown(KeyCode.W) && attackTimer <= 0)
-            StartCoroutine(Attack());
         if(Input.GetKeyDown(KeyCode.S) && !isGrounded && !isSlamming)
         {
             rb.velocity = new Vector2(rb.velocity.x, -slamForce);
             isSlamming = true;
         }
     }
-    private IEnumerator Attack()
-    {
-        attackTimer = attackCooldown;
-
-        float direction = facingRight ? 1f : -1f;
-        Vector2 hitPoint = (Vector2)transform.position + Vector2.right * (direction * attackRange);
-
-        Collider2D[] hits = Physics2D.OverlapCircleAll(hitPoint, attackRange, enemyMask);
-        foreach (Collider2D hit in hits)
-        {
-            if (hit.TryGetComponent<IDamageable>(out var target))
-                target.TakeDamage(attackDamage);
-        }
-
-        yield return null;
-    }
-
     private IEnumerator Dash()
     {
         isDashing = true;
