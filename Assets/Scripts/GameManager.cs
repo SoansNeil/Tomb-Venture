@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+public interface IDamageable
+{
+    void TakeDamage(int damage);
+}
+
 public class GameManager : MonoBehaviour
 {
     // Start is called before the first frame update
