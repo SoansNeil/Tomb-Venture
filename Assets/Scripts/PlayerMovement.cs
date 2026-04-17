@@ -51,7 +51,11 @@ public class PlayerMovement : NetworkBehaviour
         if (isWallSliding)
         {
             rb.velocity = new Vector2(rb.velocity.x, -wallSlideSpeed);
-            if (!wasWallSliding) jumpRemain++;
+            if (!wasWallSliding)
+            {
+                jumpRemain++;
+                isSlamming = false;
+            }
         }
 
         if (dashTimer > 0) dashTimer -= Time.deltaTime;

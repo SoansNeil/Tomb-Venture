@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Ground
   - Wall
+  - Ceiling
+  - Portal
   layers:
   - Default
   - TransparentFX
