@@ -8,6 +8,10 @@ TagManager:
   - Wall
   - Ceiling
   - Portal
+  - Door
+  - Enemy
+  - Head
+  - Coin
   layers:
   - Default
   - TransparentFX

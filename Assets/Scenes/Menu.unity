@@ -909,6 +909,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09dc31ed59a2a41da99fb3b297b85c49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hostSpawnPoint: {x: 0, y: 0}
+  clientSpawnOffset: 2
 --- !u!4 &1563493370
 Transform:
   m_ObjectHideFlags: 0
@@ -1259,6 +1261,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2051382483}
+  - component: {fileID: 2051382484}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1281,6 +1284,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2051382484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2051382482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f66cd713fa5764b69bafb121033125ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
