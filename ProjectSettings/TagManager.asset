@@ -12,6 +12,8 @@ TagManager:
   - Enemy
   - Head
   - Coin
+  - Boss
+  - SpawnPoint
   layers:
   - Default
   - TransparentFX

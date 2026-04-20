@@ -17,6 +17,23 @@ public class NetworkManagerSetup : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    private void OnNetworkSceneLoaded(string sceneName, LoadSceneMode mode, System.Collections.Generic.List<ulong> clientsCompleted, System.Collections.Generic.List<ulong> clientsTimedOut)
+    {
+        if (!NetworkManager.Singleton.IsServer) return;
+
+        GameObject spawnPoint = GameObject.FindGameObjectWithTag("SpawnPoint");
+        if (spawnPoint == null) return;
+
+        int index = 0;
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        {
+            if (client.PlayerObject == null) continue;
+            Vector3 pos = spawnPoint.transform.position + new Vector3(index * clientSpawnOffset, 0f, 0f);
+            client.PlayerObject.transform.position = pos;
+            index++;
+        }
+    }
+
     public Vector2 hostSpawnPoint;
     public float clientSpawnOffset = 2f;
 
@@ -25,6 +42,8 @@ public class NetworkManagerSetup : MonoBehaviour
         NetworkManager.Singleton.ConnectionApprovalCallback = ApproveConnection;
         NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
         NetworkManager.Singleton.StartHost();
+        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnNetworkSceneLoaded;
+        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnNetworkSceneLoaded;
         NetworkManager.Singleton.SceneManager.LoadScene("Room1", LoadSceneMode.Single);
     }
 

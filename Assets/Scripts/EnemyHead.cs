@@ -5,16 +5,17 @@ public class EnemyHead : MonoBehaviour
     public int stompDamage = 10;
     public float bounceForce = 8f;
 
-    private EnemyPatrol enemy;
+    private IDamageable enemy;
 
     void Start()
     {
-        enemy = GetComponentInParent<EnemyPatrol>();
+        enemy = GetComponentInParent<IDamageable>();
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (!collision.gameObject.CompareTag("Player")) return;
+        if (enemy == null) return;
 
         GameManager.Instance.DamageEnemy(enemy, stompDamage);
         Debug.Log("Enemy Damaged: " + stompDamage);

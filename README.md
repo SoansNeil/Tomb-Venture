@@ -9,3 +9,10 @@
 <li>Dash: Left Shift</li>
 <li>Slam: S Key while in air</li>
 
+<h3>Objective: </h3>
+<ul>
+<li> Find all the coins hidden around the map</li>
+<li> Damage enemies by jumping on their heads</li>
+<li> Defeat the boss to win! </li>
+<li> Play with a friend or by yourself - *IN PROGRESS*</li>
+

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class EnemyPatrol : MonoBehaviour, IDamageable
@@ -7,14 +8,22 @@ public class EnemyPatrol : MonoBehaviour, IDamageable
     public int maxHealth = 30;
     public int damageToPlayer = 10;
 
+    public Action<GameObject> OnDeath;
+
     private int currentHealth;
     private Vector2 startPosition;
     private bool movingRight = true;
 
-    void Start()
+    void OnEnable()
+    {
+        ResetState();
+    }
+
+    private void ResetState()
     {
         currentHealth = maxHealth;
         startPosition = transform.position;
+        movingRight = true;
     }
 
     void Update()
@@ -35,8 +44,19 @@ public class EnemyPatrol : MonoBehaviour, IDamageable
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+        Debug.Log("Enemy Health: " + currentHealth);
         if (currentHealth <= 0)
-            Destroy(gameObject);
+        {
+            if (OnDeath != null)
+            {
+                OnDeath.Invoke(gameObject);
+                OnDeath = null;
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
     }
 
     void OnCollisionEnter2D(Collision2D collision)
