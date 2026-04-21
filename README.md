@@ -9,7 +9,8 @@
 <li>Dash: Left Shift</li>
 <li>Slam: S Key while in air</li>
 <li>Pause: ESC </li>
-
+</ul>
+<br>
 <h3>Objective: </h3>
 <ul>
 <li> Find all the coins hidden around the map</li>
@@ -17,7 +18,7 @@
 <li> Defeat the boss to win! </li>
 <li> Play with a friend or by yourself - *IN PROGRESS*</li>
 </ul>
-
+<br>
 Known issues (if any remain)
 - Some Movement Bugs
 - Not sure if multiplayer works
