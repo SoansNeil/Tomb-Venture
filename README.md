@@ -16,11 +16,13 @@
 <li> Damage enemies by jumping on their heads</li>
 <li> Defeat the boss to win! </li>
 <li> Play with a friend or by yourself - *IN PROGRESS*</li>
+</ul>
 
 Known issues (if any remain)
 - Some Movement Bugs
 - Not sure if multiplayer works
 - Database storage bugs
+
 Technologies used
 - NuGet for Database
 - NetCode for Multiplayer implementation
