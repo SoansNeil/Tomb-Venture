@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -31,24 +32,25 @@ public class BossMovement : MonoBehaviour, IDamageable
     public float maxInterval = 2.8f;
     public float phase2SpeedMultiplier = 1.5f;
 
+    public event Action<int, int> OnHealthChanged;
+
     private int currentHealth;
     private bool isPhase2 = false;
     private Rigidbody2D rb;
     private Transform player;
-    private Vector2 startPosition;
-    private bool movingRight = true;
 
     private readonly WaitForSeconds waitLeap = new(1f);
     private readonly WaitForSeconds waitSlamFall = new(0.8f);
     private WaitForSeconds waitSlamRise;
 
-    private enum Attack { Patrol, Charge, Leap, Slam }
+    private enum Attack { Chase, Charge, Leap, Slam }
 
     void Start()
     {
         currentHealth = maxHealth;
         rb = GetComponent<Rigidbody2D>();
-        startPosition = transform.position;
+        if (UIManager.Instance != null)
+            UIManager.Instance.RegisterBoss(this);
         waitSlamRise = new WaitForSeconds(slamRiseDuration);
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) player = playerObj.transform;
@@ -75,12 +77,12 @@ public class BossMovement : MonoBehaviour, IDamageable
     {
         while (true)
         {
-            yield return new WaitForSeconds(Random.Range(minInterval, maxInterval));
+            yield return new WaitForSeconds(UnityEngine.Random.Range(minInterval, maxInterval));
 
             Attack chosen = PickAttack();
             switch (chosen)
             {
-                case Attack.Patrol: yield return StartCoroutine(DoPatrol()); break;
+                case Attack.Chase: yield return StartCoroutine(DoChase()); break;
                 case Attack.Charge: yield return StartCoroutine(DoCharge()); break;
                 case Attack.Leap:   yield return StartCoroutine(DoLeap());   break;
                 case Attack.Slam:   yield return StartCoroutine(DoSlam());   break;
@@ -91,24 +93,21 @@ public class BossMovement : MonoBehaviour, IDamageable
     private Attack PickAttack()
     {
         Attack[] pool = isPhase2
-            ? new[] { Attack.Charge, Attack.Charge, Attack.Leap, Attack.Slam, Attack.Patrol }
-            : new[] { Attack.Patrol, Attack.Charge, Attack.Leap };
-        return pool[Random.Range(0, pool.Length)];
+            ? new[] { Attack.Chase, Attack.Chase, Attack.Leap, Attack.Slam, Attack.Charge }
+            : new[] { Attack.Chase, Attack.Charge, Attack.Leap };
+        return pool[UnityEngine.Random.Range(0, pool.Length)];
     }
 
-    private IEnumerator DoPatrol()
+    private IEnumerator DoChase()
     {
+        if (player == null) yield break;
+
         float elapsed = 0f;
-        float duration = Random.Range(2f, 4f);
+        float duration = UnityEngine.Random.Range(2f, 4f);
         while (elapsed < duration)
         {
-            float dir = movingRight ? 1f : -1f;
+            float dir = player.position.x > transform.position.x ? 1f : -1f;
             rb.velocity = new Vector2(dir * patrolSpeed, rb.velocity.y);
-
-            float dist = transform.position.x - startPosition.x;
-            if (dist >= patrolDistance) movingRight = false;
-            else if (dist <= -patrolDistance) movingRight = true;
-
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -152,14 +151,20 @@ public class BossMovement : MonoBehaviour, IDamageable
 
     public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
+        currentHealth = Mathf.Max(currentHealth - damage, 0);
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
         if (currentHealth <= 0)
+        {
             Destroy(gameObject);
+            if (GameManager.Instance != null) GameManager.Instance.BossDefeated();
+        }
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player") && GameManager.Instance != null)
+        if (!collision.gameObject.CompareTag("Player")) return;
+        if (collision.contacts[0].normal.y < -0.5f) return; // stomp — handled by EnemyHead
+        if (GameManager.Instance != null)
             GameManager.Instance.TakeDamage(damageToPlayer);
     }
 }

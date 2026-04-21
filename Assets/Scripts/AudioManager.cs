@@ -30,7 +30,7 @@ public class AudioManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "Room1")
+        if (scene.name == "Room1" || scene.name == "BossRoom")
     {
         ChangeMusic(gameplayMusic);
     }
@@ -38,7 +38,7 @@ public class AudioManager : MonoBehaviour
     {
         ChangeMusic(menuMusic);
     }
-    else if (scene.name == "GameOver")
+    else if (scene.name == "GameOver" || scene.name == "WinScreen")
     {
         ChangeMusic(gameOverMusic);
     }

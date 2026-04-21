@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -37,8 +38,17 @@ public class NetworkManagerSetup : MonoBehaviour
     public Vector2 hostSpawnPoint;
     public float clientSpawnOffset = 2f;
 
-    public void StartHost()
+    public void StartHost() => StartCoroutine(StartHostRoutine());
+    public void StartClient() => StartCoroutine(StartClientRoutine());
+
+    private IEnumerator StartHostRoutine()
     {
+        if (NetworkManager.Singleton.IsListening)
+        {
+            NetworkManager.Singleton.Shutdown();
+            yield return null;
+        }
+
         NetworkManager.Singleton.ConnectionApprovalCallback = ApproveConnection;
         NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
         NetworkManager.Singleton.StartHost();
@@ -47,8 +57,14 @@ public class NetworkManagerSetup : MonoBehaviour
         NetworkManager.Singleton.SceneManager.LoadScene("Room1", LoadSceneMode.Single);
     }
 
-    public void StartClient()
+    private IEnumerator StartClientRoutine()
     {
+        if (NetworkManager.Singleton.IsListening)
+        {
+            NetworkManager.Singleton.Shutdown();
+            yield return null;
+        }
+
         NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
         NetworkManager.Singleton.StartClient();
     }

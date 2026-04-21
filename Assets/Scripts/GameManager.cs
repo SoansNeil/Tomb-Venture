@@ -14,7 +14,10 @@ public class GameManager : MonoBehaviour
     public int maxHealth = 100;
     public int coinsToWin = 10;
     private int currentHealth;
+    public int CurrentHealth => currentHealth;
     public int CoinCount { get; private set; }
+    public float ElapsedTime { get; private set; }
+    private bool timerRunning = false;
 
     public event Action OnAllCoinsCollected;
     public event Action<int, int> OnHealthChanged;
@@ -37,8 +40,15 @@ public class GameManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
+    public string[] gameplayScenes = { "Room1", "BossRoom" };
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        if (System.Array.IndexOf(gameplayScenes, scene.name) >= 0)
+            StartTimer();
+        else
+            StopTimer();
+
         GameObject spawnPoint = GameObject.FindGameObjectWithTag("SpawnPoint");
         if (spawnPoint == null) return;
         StartCoroutine(SpawnPlayer(spawnPoint.transform.position));
@@ -61,8 +71,31 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        ResetGame();
+    }
+
+    public void ResetGame()
+    {
         currentHealth = maxHealth;
+        CoinCount = 0;
+        ElapsedTime = 0f;
+        timerRunning = false;
+        RefreshUI();
+    }
+
+    public void StartTimer() => timerRunning = true;
+    public void StopTimer() => timerRunning = false;
+
+    public void RefreshUI()
+    {
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        OnCoinCollected?.Invoke(CoinCount);
+    }
+
+    void Update()
+    {
+        if (timerRunning)
+            ElapsedTime += Time.deltaTime;
     }
 
     public void TakeDamage(int damage)
@@ -70,7 +103,12 @@ public class GameManager : MonoBehaviour
         currentHealth = Mathf.Max(currentHealth - damage, 0);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
         if (currentHealth <= 0)
-            SceneManager.LoadScene("GameOver");
+        {
+            if (GameOverManager.Instance != null)
+                GameOverManager.Instance.TriggerGameOver();
+            else
+                SceneManager.LoadScene("GameOver");
+        }
     }
 
     public void CollectCoin()
@@ -84,5 +122,13 @@ public class GameManager : MonoBehaviour
     public void DamageEnemy(IDamageable enemy, int damage)
     {
         enemy.TakeDamage(damage);
+    }
+
+    public void BossDefeated()
+    {
+        if (GameOverManager.Instance != null)
+            GameOverManager.Instance.TriggerWin();
+        else
+            SceneManager.LoadScene("WinScreen");
     }
 }
