@@ -19,6 +19,7 @@
 <li> Play with a friend or by yourself - *IN PROGRESS*</li>
 </ul>
 <br>
+
 Known issues (if any remain)
 - Some Movement Bugs
 - Not sure if multiplayer works
