@@ -83,8 +83,17 @@ public class GameManager : MonoBehaviour
         RefreshUI();
     }
 
-    public void StartTimer() => timerRunning = true;
-    public void StopTimer() => timerRunning = false;
+    public void StartTimer()
+    {
+        timerRunning = true;
+        Debug.Log($"[GameManager] Timer started in scene: {UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
+    }
+
+    public void StopTimer()
+    {
+        timerRunning = false;
+        Debug.Log($"[GameManager] Timer stopped. ElapsedTime: {ElapsedTime:F2}s");
+    }
 
     public void RefreshUI()
     {

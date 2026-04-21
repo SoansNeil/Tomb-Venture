@@ -8,6 +8,7 @@ public class GameOverManager : MonoBehaviour
     public static GameOverManager Instance { get; private set; }
 
     public float FinalTime { get; private set; }
+    public int FinalCoins { get; private set; }
     public bool Won { get; private set; }
 
     public string gameOverScene = "GameOver";
@@ -53,8 +54,6 @@ public class GameOverManager : MonoBehaviour
     {
         SaveStats();
         Won = true;
-        if (DatabaseManager.Instance != null)
-            DatabaseManager.Instance.SaveScore("Player", GameManager.Instance.CoinCount, FinalTime);
         ShutdownNetwork();
         SceneManager.LoadScene(winScene);
     }
@@ -87,8 +86,12 @@ public class GameOverManager : MonoBehaviour
 
     private void SaveStats()
     {
+        Debug.Log($"[GameOverManager] SaveStats called. GameManager null: {GameManager.Instance == null}");
         if (GameManager.Instance == null) return;
+        Debug.Log($"[GameOverManager] ElapsedTime before stop: {GameManager.Instance.ElapsedTime:F2}s");
         GameManager.Instance.StopTimer();
         FinalTime = GameManager.Instance.ElapsedTime;
+        FinalCoins = GameManager.Instance.CoinCount;
+        Debug.Log($"[GameOverManager] SaveStats — FinalTime: {FinalTime:F2}s, FinalCoins: {FinalCoins}");
     }
 }

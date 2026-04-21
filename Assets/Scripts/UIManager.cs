@@ -121,7 +121,7 @@ public class UIManager : MonoBehaviour
             healthBar.value = current;
         }
         if (healthText != null)
-            healthText.text = $"{current} / {max}";
+            healthText.text = $"Player Health: {current} / {max}";
     }
 
     private void UpdateCoins(int count)
@@ -138,6 +138,6 @@ public class UIManager : MonoBehaviour
             bossHealthBar.value = current;
         }
         if (bossHealthText != null)
-            bossHealthText.text = $"{current} / {max}";
+            bossHealthText.text = $"Boss Health: {current} / {max}";
     }
 }
