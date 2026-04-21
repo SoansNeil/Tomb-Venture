@@ -67,6 +67,8 @@ public class PlayerMovement : NetworkBehaviour
             rb.velocity = new Vector2(rb.velocity.x, -slamForce);
             isSlamming = true;
         }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        UIManager.Instance.TogglePause();
     }
     private IEnumerator Dash()
     {

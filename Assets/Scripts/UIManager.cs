@@ -21,6 +21,10 @@ public class UIManager : MonoBehaviour
     [Header("Pause")]
     public GameObject pauseMenu;
 
+    [Header("Save/Load")]
+    public TMP_Text saveLoadFeedbackText;
+    public string mainMenuScene = "Menu";
+
     private BossMovement boss;
     private bool isPaused = false;
 
@@ -65,8 +69,14 @@ public class UIManager : MonoBehaviour
         GameObject bht = GameObject.FindGameObjectWithTag("BossHealthText");
         if (bht != null) bossHealthText = bht.GetComponent<TMP_Text>();
 
-        GameObject pm = GameObject.FindGameObjectWithTag("PauseMenu");
-        if (pm != null) pauseMenu = pm;
+        foreach (var obj in Resources.FindObjectsOfTypeAll<GameObject>())
+        {
+            if (obj.scene.IsValid() && obj.CompareTag("PauseMenu"))
+            {
+                pauseMenu = obj;
+                break;
+            }
+        }
 
         SetBossUIVisible(false);
     }
@@ -99,6 +109,45 @@ public class UIManager : MonoBehaviour
         isPaused = false;
         Time.timeScale = 1f;
         if (pauseMenu != null) pauseMenu.SetActive(false);
+    }
+
+    public void SaveGame()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SaveGame();
+            Resume();
+            SceneManager.LoadScene(mainMenuScene);
+        }
+    }
+
+    public void LoadGame()
+    {
+        if (GameManager.Instance != null && SaveSystem.HasSave())
+        {
+            Resume();
+            GameManager.Instance.LoadGame();
+        }
+        else
+        {
+            ShowFeedback("No save found.");
+        }
+    }
+
+    private void ShowFeedback(string message)
+    {
+        if (saveLoadFeedbackText != null)
+        {
+            saveLoadFeedbackText.text = message;
+            CancelInvoke(nameof(ClearFeedback));
+            Invoke(nameof(ClearFeedback), 2f);
+        }
+    }
+
+    private void ClearFeedback()
+    {
+        if (saveLoadFeedbackText != null)
+            saveLoadFeedbackText.text = "";
     }
 
     void OnEnable()

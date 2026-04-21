@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -49,9 +50,37 @@ public class GameManager : MonoBehaviour
         else
             StopTimer();
 
+        if (pendingSaveData != null)
+        {
+            currentHealth = pendingSaveData.health;
+            CoinCount = pendingSaveData.coins;
+            ElapsedTime = pendingSaveData.elapsedTime;
+            collectedCoinIds.Clear();
+            foreach (var id in pendingSaveData.collectedCoinIds)
+                collectedCoinIds.Add(id);
+            pendingSaveData = null;
+            RefreshUI();
+            StartCoroutine(DisableCollectedCoins());
+        }
+
         GameObject spawnPoint = GameObject.FindGameObjectWithTag("SpawnPoint");
         if (spawnPoint == null) return;
         StartCoroutine(SpawnPlayer(spawnPoint.transform.position));
+    }
+
+    private System.Collections.IEnumerator DisableCollectedCoins()
+    {
+        yield return null; // wait one frame for scene objects to initialise
+        foreach (var coin in GameObject.FindObjectsOfType<Coin>())
+        {
+            if (collectedCoinIds.Contains(CoinId(coin.transform.position)))
+            {
+                if (ObjectPool.Instance != null)
+                    ObjectPool.Instance.Return(coin.gameObject);
+                else
+                    coin.gameObject.SetActive(false);
+            }
+        }
     }
 
     private System.Collections.IEnumerator SpawnPlayer(Vector3 position)
@@ -80,6 +109,7 @@ public class GameManager : MonoBehaviour
         CoinCount = 0;
         ElapsedTime = 0f;
         timerRunning = false;
+        collectedCoinIds.Clear();
         RefreshUI();
     }
 
@@ -120,8 +150,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void CollectCoin()
+    public void CollectCoin(Vector3 worldPosition)
     {
+        collectedCoinIds.Add(CoinId(worldPosition));
         CoinCount++;
         OnCoinCollected?.Invoke(CoinCount);
         if (CoinCount >= coinsToWin)
@@ -139,5 +170,33 @@ public class GameManager : MonoBehaviour
             GameOverManager.Instance.TriggerWin();
         else
             SceneManager.LoadScene("WinScreen");
+    }
+
+    private SaveData pendingSaveData;
+    private readonly HashSet<string> collectedCoinIds = new HashSet<string>();
+
+    public static string CoinId(Vector3 pos) =>
+        $"{Mathf.RoundToInt(pos.x)},{Mathf.RoundToInt(pos.y)}";
+
+    public void SaveGame()
+    {
+        SaveData data = new SaveData
+        {
+            health = currentHealth,
+            coins = CoinCount,
+            elapsedTime = ElapsedTime,
+            sceneName = SceneManager.GetActiveScene().name,
+            collectedCoinIds = new List<string>(collectedCoinIds)
+        };
+        SaveSystem.Save(data);
+    }
+
+    public void LoadGame()
+    {
+        SaveData data = SaveSystem.Load();
+        if (data == null) return;
+
+        pendingSaveData = data;
+        NetworkManagerSetup.Instance.StartHostInScene(data.sceneName);
     }
 }

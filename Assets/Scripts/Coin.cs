@@ -6,7 +6,7 @@ public class Coin : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        GameManager.Instance.CollectCoin();
+        GameManager.Instance.CollectCoin(transform.position);
         AudioManager.Instance.PlaySoundEffect(AudioManager.Instance.coinSound);
         if (ObjectPool.Instance != null)
             ObjectPool.Instance.Return(gameObject);

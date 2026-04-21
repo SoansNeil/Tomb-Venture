@@ -20,6 +20,7 @@ TagManager:
   - CoinText
   - BossHealthBar
   - BossHealthText
+  - PauseMenu
   layers:
   - Default
   - TransparentFX

@@ -38,10 +38,11 @@ public class NetworkManagerSetup : MonoBehaviour
     public Vector2 hostSpawnPoint;
     public float clientSpawnOffset = 2f;
 
-    public void StartHost() => StartCoroutine(StartHostRoutine());
+    public void StartHost() => StartCoroutine(StartHostRoutine("Room1"));
+    public void StartHostInScene(string sceneName) => StartCoroutine(StartHostRoutine(sceneName));
     public void StartClient() => StartCoroutine(StartClientRoutine());
 
-    private IEnumerator StartHostRoutine()
+    private IEnumerator StartHostRoutine(string sceneName)
     {
         if (NetworkManager.Singleton.IsListening)
         {
@@ -54,7 +55,7 @@ public class NetworkManagerSetup : MonoBehaviour
         NetworkManager.Singleton.StartHost();
         NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnNetworkSceneLoaded;
         NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnNetworkSceneLoaded;
-        NetworkManager.Singleton.SceneManager.LoadScene("Room1", LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 
     private IEnumerator StartClientRoutine()
